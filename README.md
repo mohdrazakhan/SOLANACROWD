@@ -10,6 +10,11 @@ The platform allows users to create crowdfunding campaigns and contribute SOL se
 - Secure handling of funds using PDA-based Solana smart contracts
 - Smart contracts tested using the Anchor test suite
 
+## 📸 Screenshots
+
+### Home Page
+![Home Page](Screenshots/HomePage.jpeg)
+
 
 🛠️ Tech Stack
 Solana (Blockchain)
