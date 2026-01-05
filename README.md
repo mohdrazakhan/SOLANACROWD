@@ -13,7 +13,18 @@ The platform allows users to create crowdfunding campaigns and contribute SOL se
 ## 📸 Screenshots
 
 ### Home Page
-![Home Page](Screenshots/HomePage.jpeg)
+## 📸 Screenshots
+
+### Home Page
+![Home Page](screenshots/home-page.jpeg)
+### Create Campaign
+![Create Campaign](screenshots/create-campaign.jpeg)
+### Wallet Connection
+![Wallet Connection](screenshots/wallet-connection.jpeg)
+### Explore Campaigns
+![Explore Campaigns](screenshots/active-campaigns.jpeg)
+
+
 
 
 🛠️ Tech Stack
