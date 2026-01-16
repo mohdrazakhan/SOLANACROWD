@@ -1,5 +1,4 @@
 /** @type {import('next').NextConfig} */
-/** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
     remotePatterns: [
@@ -9,6 +8,14 @@ const nextConfig = {
       },
     ],
     domains: ['localhost'],
+  },
+
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      'pino-pretty': false,
+    };
+    return config;
   },
 }
 
