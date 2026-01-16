@@ -10,13 +10,13 @@ const nextConfig = {
     domains: ['localhost'],
   },
 
-  webpack: (config) => {
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      'pino-pretty': false,
-    };
+  webpack(config, { isServer }) {
+    if (isServer) {
+      config.externals = config.externals || [];
+      config.externals.push('pino-pretty');
+    }
     return config;
   },
-}
+};
 
-export default nextConfig
+export default nextConfig;
