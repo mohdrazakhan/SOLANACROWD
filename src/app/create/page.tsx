@@ -22,35 +22,48 @@ export default function Page() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (!publicKey) return toast.warn('Please connect wallet')
+    if (!publicKey || !program) return toast.warn('Please connect your wallet')
 
-    await toast.promise(
-      new Promise<void>(async (resolve, reject) => {
-        try {
-          const { title, description, image_url, goal } = form
-          const tx = await createCampaign(
-            program!,
-            publicKey!,
-            title,
-            description,
-            image_url,
-            Number(goal)
-          )
+    const toastId = toast.loading('Approve transaction in your wallet...')
 
-          setForm({ title: '', description: '', image_url: '', goal: '' })
+    try {
+      const { title, description, image_url, goal } = form
+      const tx = await createCampaign(
+        program,
+        publicKey,
+        title,
+        description,
+        image_url,
+        Number(goal)
+      )
 
-          console.log('Transaction Signature:', tx)
-          resolve()
-        } catch (error) {
-          reject(error)
-        }
-      }),
-      {
-        pending: 'Approve transaction...',
-        success: 'Transaction successful 👌',
-        error: 'Encountered error 🤯',
-      }
-    )
+      setForm({ title: '', description: '', image_url: '', goal: '' })
+      toast.update(toastId, {
+        render: 'Campaign created successfully 👌',
+        type: 'success',
+        isLoading: false,
+        autoClose: 5000,
+      })
+      console.log('Transaction Signature:', tx)
+    } catch (error: any) {
+      const isRejected =
+        error?.name === 'WalletSignTransactionError' ||
+        error?.message?.includes('User rejected') ||
+        error?.message?.includes('rejected the request')
+
+      // Show the actual error so we can diagnose issues
+      const errorMsg = isRejected
+        ? 'Transaction cancelled by user'
+        : error?.message?.slice(0, 100) || 'Campaign creation failed 🤯'
+
+      toast.update(toastId, {
+        render: errorMsg,
+        type: isRejected ? 'warning' : 'error',
+        isLoading: false,
+        autoClose: 8000,
+      })
+      console.error('Create campaign error:', error)
+    }
   }
 
   return (
