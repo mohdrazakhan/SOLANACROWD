@@ -73,7 +73,7 @@ export const createCampaign = async (
   )
 
   const state = await program.account.ProgramState.fetch(programStatePda)
-  const CID = state.campaignCount.add(new BN(1))
+  const CID = state.campaign_count.add(new BN(1))
 
   const [campaignPda] = PublicKey.findProgramAddressSync(
     [Buffer.from('campaign'), CID.toArrayLike(Buffer, 'le', 8)],
@@ -84,12 +84,12 @@ export const createCampaign = async (
 
   try {
     const tx = await program.methods
-      .createCampaign(title, description, image_url, goalBN)
+      .create_campaign(title, description, image_url, goalBN)
       .accountsPartial({
-        programState: programStatePda,
+        program_state: programStatePda,
         campaign: campaignPda,
         creator: publicKey,
-        systemProgram: SystemProgram.programId,
+        system_program: SystemProgram.programId,
       })
       .rpc()
 
@@ -121,11 +121,11 @@ export const updateCampaign = async (
 
   const goalBN = new BN(goal * 1_000_000_000)
   const tx = await program.methods
-    .updateCampaign(campaign.cid, title, description, image_url, goalBN)
+    .update_campaign(campaign.cid, title, description, image_url, goalBN)
     .accountsPartial({
       campaign: pda,
       creator: publicKey,
-      systemProgram: SystemProgram.programId,
+      system_program: SystemProgram.programId,
     })
     .rpc()
 
@@ -146,11 +146,11 @@ export const deleteCampaign = async (
   const campaign = await program.account.Campaign.fetch(pda)
 
   const tx = await program.methods
-    .deleteCampaign(campaign.cid)
+    .delete_campaign(campaign.cid)
     .accountsPartial({
       campaign: pda,
       creator: publicKey,
-      systemProgram: SystemProgram.programId,
+      system_program: SystemProgram.programId,
     })
     .rpc()
 
@@ -176,10 +176,10 @@ export const updatePlatform = async (
   )
 
   const tx = await program.methods
-    .updatePlatformSettings(new BN(percent))
+    .update_platform_settings(new BN(percent))
     .accountsPartial({
       updater: publicKey,
-      programState: programStatePda,
+      program_state: programStatePda,
     })
     .rpc()
 
@@ -217,7 +217,7 @@ export const donateToCampaign = async (
       campaign: pda,
       transaction: transactionPda,
       donor: publicKey,
-      systemProgram: SystemProgram.programId,
+      system_program: SystemProgram.programId,
     })
     .rpc()
 
@@ -259,12 +259,12 @@ export const withdrawFromCampaign = async (
   const tx = await program.methods
     .withdraw(campaign.cid, withdraw_amount)
     .accountsPartial({
-      programState: programStatePda,
+      program_state: programStatePda,
       campaign: pda,
       transaction: transactionPda,
       creator: publicKey,
-      platformAddress: programState.platformAddress,
-      systemProgram: SystemProgram.programId,
+      platform_address: programState.platform_address,
+      system_program: SystemProgram.programId,
     })
     .rpc()
 
@@ -308,7 +308,8 @@ export const fetchCampaignDetails = async (
     cid: campaign.cid.toNumber(),
     creator: campaign.creator.toBase58(),
     goal: campaign.goal.toNumber() / 1e9,
-    amountRaised: campaign.amountRaised.toNumber() / 1e9,
+    amountRaised: campaign.amount_raised.toNumber() / 1e9,
+    imageUrl: campaign.image_url,
     timestamp: campaign.timestamp.toNumber() * 1000,
     donors: campaign.donors.toNumber(),
     withdrawals: campaign.withdrawals.toNumber(),
@@ -362,9 +363,9 @@ export const fetchProgramState = async (
 
   const serialized: ProgramState = {
     ...programState,
-    campaignCount: programState.campaignCount.toNumber(),
-    platformFee: programState.platformFee.toNumber(),
-    platformAddress: programState.platformAddress.toBase58(),
+    campaignCount: programState.campaign_count.toNumber(),
+    platformFee: programState.platform_fee.toNumber(),
+    platformAddress: programState.platform_address.toBase58(),
   }
 
   store.dispatch(setStates(serialized))
@@ -378,7 +379,8 @@ const serializedCampaigns = (campaigns: any[]): Campaign[] => {
     cid: c.account.cid.toNumber(),
     creator: c.account.creator.toBase58(),
     goal: c.account.goal.toNumber() / 1e9,
-    amountRaised: c.account.amountRaised.toNumber() / 1e9,
+    amountRaised: c.account.amount_raised.toNumber() / 1e9,
+    imageUrl: c.account.image_url,
     timestamp: c.account.timestamp.toNumber() * 1000,
     donors: c.account.donors.toNumber(),
     withdrawals: c.account.withdrawals.toNumber(),
