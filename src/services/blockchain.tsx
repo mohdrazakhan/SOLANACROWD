@@ -72,7 +72,7 @@ export const createCampaign = async (
     program.programId
   )
 
-  const state = await program.account.ProgramState.fetch(programStatePda)
+  const state = await program.account.programState.fetch(programStatePda)
   const CID = state.campaign_count.add(new BN(1))
 
   const [campaignPda] = PublicKey.findProgramAddressSync(
@@ -117,7 +117,7 @@ export const updateCampaign = async (
   image_url: string,
   goal: number
 ): Promise<TransactionSignature> => {
-  const campaign = await program.account.Campaign.fetch(pda)
+  const campaign = await program.account.campaign.fetch(pda)
 
   const goalBN = new BN(goal * 1_000_000_000)
   const tx = await program.methods
@@ -143,7 +143,7 @@ export const deleteCampaign = async (
   publicKey: PublicKey,
   pda: string
 ): Promise<TransactionSignature> => {
-  const campaign = await program.account.Campaign.fetch(pda)
+  const campaign = await program.account.campaign.fetch(pda)
 
   const tx = await program.methods
     .delete_campaign(campaign.cid)
@@ -198,7 +198,7 @@ export const donateToCampaign = async (
   pda: string,
   amount: number
 ): Promise<TransactionSignature> => {
-  const campaign = await program.account.Campaign.fetch(pda)
+  const campaign = await program.account.campaign.fetch(pda)
 
   const [transactionPda] = PublicKey.findProgramAddressSync(
     [
@@ -236,7 +236,7 @@ export const withdrawFromCampaign = async (
   pda: string,
   amount: number
 ): Promise<TransactionSignature> => {
-  const campaign = await program.account.Campaign.fetch(pda)
+  const campaign = await program.account.campaign.fetch(pda)
 
   const [programStatePda] = PublicKey.findProgramAddressSync(
     [Buffer.from('program_state')],
@@ -253,7 +253,7 @@ export const withdrawFromCampaign = async (
     program.programId
   )
 
-  const programState = await program.account.ProgramState.fetch(programStatePda)
+  const programState = await program.account.programState.fetch(programStatePda)
 
   const withdraw_amount = new BN(Math.round(amount * 1_000_000_000))
   const tx = await program.methods
@@ -281,7 +281,7 @@ export const withdrawFromCampaign = async (
 export const fetchActiveCampaigns = async (
   program: Program<Fundus>
 ): Promise<Campaign[]> => {
-  const campaigns = await program.account.Campaign.all()
+  const campaigns = await program.account.campaign.all()
   const activeCampaigns = campaigns.filter((c) => c.account.active)
   return serializedCampaigns(activeCampaigns)
 }
@@ -290,7 +290,7 @@ export const fetchUserCampaigns = async (
   program: Program<Fundus>,
   publicKey: PublicKey
 ): Promise<Campaign[]> => {
-  const campaigns = await program.account.Campaign.all()
+  const campaigns = await program.account.campaign.all()
   const useCampaigns = campaigns.filter((c) => {
     return c.account.creator.toBase58() == publicKey.toBase58()
   })
@@ -301,7 +301,7 @@ export const fetchCampaignDetails = async (
   program: Program<Fundus>,
   pda: string
 ): Promise<Campaign> => {
-  const campaign = await program.account.Campaign.fetch(pda)
+  const campaign = await program.account.campaign.fetch(pda)
   const serialized: Campaign = {
     ...campaign,
     publicKey: pda,
@@ -325,8 +325,8 @@ export const fetchAllDonations = async (
   program: Program<Fundus>,
   pda: string
 ): Promise<Transaction[]> => {
-  const campaign = await program.account.Campaign.fetch(pda)
-  const transactions = await program.account.Transaction.all()
+  const campaign = await program.account.campaign.fetch(pda)
+  const transactions = await program.account.transaction.all()
 
   const donations = transactions.filter((tx) => {
     return tx.account.cid.eq(campaign.cid) && tx.account.credited
@@ -340,8 +340,8 @@ export const fetchAllWithsrawals = async (
   program: Program<Fundus>,
   pda: string
 ): Promise<Transaction[]> => {
-  const campaign = await program.account.Campaign.fetch(pda)
-  const transactions = await program.account.Transaction.all()
+  const campaign = await program.account.campaign.fetch(pda)
+  const transactions = await program.account.transaction.all()
 
   const withdrawals = transactions.filter((tx) => {
     return tx.account.cid.eq(campaign.cid) && !tx.account.credited
@@ -359,7 +359,7 @@ export const fetchProgramState = async (
     program.programId
   )
 
-  const programState = await program.account.ProgramState.fetch(programStatePda)
+  const programState = await program.account.programState.fetch(programStatePda)
 
   const serialized: ProgramState = {
     ...programState,
